@@ -3,18 +3,20 @@ const AWS = require('aws-sdk');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
+const cors = require('cors'); // Import cors
+
 
 const app = express();
+app.use(cors());
 const PORT = 3000;
 
 // Configure AWS S3
 const s3 = new AWS.S3({
-  region: 'us-east-1', // e.g., 'us-east-1'
-  accessKeyId: 'AKIAU6GDYQOGRAXKWZVO', // Optional if using environment variables or IAM roles
-  secretAccessKey: 'c01c5jbzfPYmlVpGrH5OIv9EICTURrGUeYn987vE' // Optional if using environment variables or IAM roles
+  region: 'us-east-1',
+  accessKeyId: 'AKIAU6GDYQOGRAXKWZVO',
+  secretAccessKey: 'c01c5jbzfPYmlVpGrH5OIv9EICTURrGUeYn987vE' 
 });
 
-// Replace with your S3 bucket name
 const BUCKET_NAME = 'bucket2-4';
 
 // Set up Multer for file uploads
@@ -31,7 +33,11 @@ app.get('/images', async (req, res) => {
   
       const images = data.Contents.map(item => ({
         Key: item.Key,
-        Url: `https://${BUCKET_NAME}.s3.us-east-1.amazonaws.com/${item.Key}`,
+        Url: s3.getSignedUrl('getObject', {
+          Bucket: BUCKET_NAME,
+          Key: item.Key,
+          Expires: 60, // URL valid for 60 seconds
+        }),
       }));
   
       res.status(200).json({ images });
