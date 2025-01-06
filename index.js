@@ -61,7 +61,7 @@ app.post('/images', upload.single('image'), async (req, res) => {
     const fileContent = fs.readFileSync(filePath);
     const params = {
       Bucket: BUCKET_NAME,
-      Key: fileName, // Use the original filename
+      Key: 'original-images/' + fileName, // Use the original filename
       Body: fileContent,
       ContentType: req.file.mimetype,
     };
